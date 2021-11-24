@@ -2,7 +2,6 @@ import numpy as np
 from scipy.linalg import sqrtm
 import matplotlib.pyplot as plt
 import torch
-import os
 import torch.nn as nn
 from torch.nn import functional as F
 from torchvision.models import inception_v3
@@ -31,9 +30,25 @@ def show_imgs(img_fake, img_real):
     plt.title("Real")
     plt.show()
 
-# Pretty sure this is evaluated in the model, but it is repeated here as another metric (not a good one though)
-def avg_log_likelihood(img_fake, img_real):  # Method used in original GAN paper (kernel estimation)
-    pass
+
+# Pretty sure this needs to be evaluated at training time because this is the "objective" function w/o l1 penalty
+def avg_log_likelihood(disc, img_untranslated_dataset, img_fake_dataset, img_real_dataset, batch_size):  # Method used in original GAN paper (kernel estimation)
+    # The discriminator object should be passed into here
+    img_untranslated = DataLoader(img_untranslated_dataset, batch_size=batch_size)
+    img_fake = DataLoader(img_fake_dataset, batch_size=batch_size)
+    img_real = DataLoader(img_real_dataset, batch_size=batch_size)
+
+    losses = []
+    disc.eval()
+    for fake, real, untranslated in zip(img_fake, img_real, img_untranslated):
+        d_real = disc(untranslated, real)
+        d_fake = disc(untranslated, fake)
+        d_real_loss = nn.BCEWithLogitsLoss(d_real, torch.ones_like(d_real))
+        d_fake_loss = nn.BCEWithLogitsLoss(d_fake, torch.zeros_like(d_fake))
+        d_loss = (d_real_loss + d_fake_loss) / 2
+        losses.append(d_loss)
+
+    return np.mean(losses), np.std(losses)
 
 
 # Set up for having batches of images processed and then averaged to get one unified score
@@ -67,33 +82,36 @@ def inception_score(img_fake_dataset, model, batch_size=32, n_split=10, esp=1E-1
     return np.mean(splits), np.std(splits)
 
 
-def FID(img_fake, img_real, model):  # activation of last pooling layer of inception net
+def FID(img_fake_dataset, img_real_dataset, model, batch_size):  # activation of last pooling layer of inception net
     # img_fake, img_real are numpy arrays of size (299, 299, 3)
+    img_fake = DataLoader(img_fake_dataset, batch_size=batch_size)
+    img_real = DataLoader(img_real_dataset, batch_size=batch_size)
     model.eval()
-    output_fake = model(img_fake)
-    output_real = model(img_real)
-    output_fake = output_fake.detach().numpy().T
-    output_real = output_real.detach().numpy().T
+    FID_list = []
+    for fake, real in zip(img_fake, img_real):
+        output_fake = model(img_fake)
+        output_real = model(img_real)
+        output_fake = output_fake.detach().numpy().T
+        output_real = output_real.detach().numpy().T
 
-    mu1, sig1 = np.mean(output_fake, axis=0), np.cov(output_fake, rowvar=False)
-    mu2, sig2 = np.mean(output_real, axis=0), np.cov(output_real, rowvar=False)
+        mu1, sig1 = np.mean(output_fake, axis=0), np.cov(output_fake, rowvar=False)
+        mu2, sig2 = np.mean(output_real, axis=0), np.cov(output_real, rowvar=False)
 
-    sum_square = np.power(np.linalg.norm(mu1-mu2), 2)
+        sum_square = np.power(np.linalg.norm(mu1-mu2), 2)
 
-    if output_real.shape[1] == 1:
-        mat_sqrt = np.sqrt(sig1*sig2)
-    else:
-        mat_sqrt = sqrtm(np.matmul(sig1, sig2))
+        if output_real.shape[1] == 1:
+            mat_sqrt = np.sqrt(sig1*sig2)
+        else:
+            mat_sqrt = sqrtm(np.matmul(sig1, sig2))
 
-    if np.iscomplexobj(mat_sqrt):
-        mat_sqrt = mat_sqrt.real
+        if np.iscomplexobj(mat_sqrt):
+            mat_sqrt = mat_sqrt.real
 
-    return sum_square + np.trace(sig1 + sig2 - np.multiply(mat_sqrt, 2)) if output_real.shape[1] != 1 \
-        else sum_square + sig1 + sig2 - np.multiply(mat_sqrt, 2)
+        res = sum_square + np.trace(sig1 + sig2 - np.multiply(mat_sqrt, 2)) if output_real.shape[1] != 1 \
+            else sum_square + sig1 + sig2 - np.multiply(mat_sqrt, 2)
+        FID_list.append(res)
 
-
-
-
+    return np.mean(FID_list), np.std(FID_list)
 
 
 if __name__ == "__main__":
@@ -110,29 +128,12 @@ if __name__ == "__main__":
     # Get the number of images that belong to each
     num_images = len(real_dataset)
 
-    # Get the dataloaders --> We can choose how many to average over with the batch size
+    # Test data loaders working find
     real_loader = DataLoader(real_dataset, batch_size=5, shuffle=False)
     fake_loader = DataLoader(fake_dataset, batch_size=5, shuffle=False)
 
     # Gather a big batch of the data (can use for testing, not necessary with loop)
     img_real_batch = next(iter(real_loader))
     img_fake_batch = next(iter(fake_loader))
-    # print(np.mean(inception_act(img_fake_batch).detach().numpy()))
-    ALL_dict = {}
-    IC_dict = {}
-    FID_dict = {}
-    print(inception_score(fake_dataset, inception_net))
-    # print(FID(img_fake_batch, img_real_batch, inception_act))
-# For actual training evaluation, we would gather all of the images in one batch and loop through epochs
-    uncomment = """
-    for real, fake in zip(real_loader, fake_loader):
-        # all_score = avg_log_likelihood(fake, real)
-        # ic_score = inception_score(fake, real, inception_net)
-        fid_score = FID(fake, real, inception_act)
 
-        # ALL.append(avg_log_likelihood(fake, real))
-        # IC.append(inception_score(fake, real, inception_net))
-        FID_dict[round(fid_score, 4)] = (real, fake)
-
-    print(FID_dict)"""
-
+    # Here, add any testing of the functions

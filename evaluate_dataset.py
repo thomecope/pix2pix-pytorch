@@ -7,7 +7,6 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 
-
 class EvaluationDataset(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
