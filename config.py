@@ -12,3 +12,4 @@ LAMBDA = 100
 
 # load checkpoint? 
 FORCE = True
+CKPT_PATH: 'checkpoints/pix2pix'
