@@ -1,0 +1,5 @@
+# ignore my todo file
+*.txt
+
+# ignore all images
+*.jpg
