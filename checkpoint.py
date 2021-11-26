@@ -2,6 +2,7 @@
 import itertools
 import os
 import torch
+import config
 
 
 def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, epoch, checkpoint_dir, stats):
@@ -21,9 +22,12 @@ def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, dis
 
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    
+
     filename = os.path.join(checkpoint_dir,'epoch={}.checkpoint.pth.tar'.format(epoch))
     torch.save(state, filename)
+
+    delete_old_checkpoint(checkpoint_dir)
+
 
 
 def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, checkpoint_dir, cuda=False, force=False):
@@ -105,3 +109,11 @@ def clear_checkpoint(checkpoint_dir):
         os.remove(os.path.join(checkpoint_dir, f))
 
     print("Checkpoint successfully removed")
+
+def delete_old_checkpoint(checkpoint_dir):
+    """
+    Delete all checkpoints in directory.
+    """
+    filelist = [f for f in os.listdir(checkpoint_dir) if f.endswith(".pth.tar")]
+    if len(filelist)>config.MAX_TO_KEEP:
+        os.remove(os.path.join(checkpoint_dir, min(filelist)))

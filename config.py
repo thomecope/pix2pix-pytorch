@@ -1,4 +1,3 @@
-
 # optimization params
 LR = 0.0002
 BETA_1 = 0.5
@@ -11,5 +10,6 @@ EPOCHS = None
 LAMBDA = 100
 
 # load checkpoint? 
-FORCE = True
-CKPT_PATH: 'checkpoints/pix2pix'
+FORCE = False
+CKPT_PATH = 'checkpoints/pix2pix'
+MAX_TO_KEEP = 5

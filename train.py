@@ -127,9 +127,10 @@ def train(generator, discriminator):
         # _evaluate_epoch(plotter, train_loader, val_loader, model, criterion, epoch + 1)
 
         # save checkpoint (saving none for stats currently)
+
         checkpoint.save_checkpoint(
             generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 
-            epoch + 1, config['ckpt_path'], None)
+            epoch + 1, config.CKPT_PATH, None)
         print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete')
     
     print('Finished Training')
