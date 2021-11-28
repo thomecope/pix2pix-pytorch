@@ -16,10 +16,10 @@ def _disc_loss(disc_real, disc_fake,  bce):
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
     # discriminator losses
-    gan_loss = bce(disc_fake, torch.ones_like(disc_real))
+    gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
-    return gan_loss + config.LAMBDA * l1_loss  
+    return gan_loss + config.LAMBDA * l1_loss 
 
 def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1):
     for idx, (inp, tar) in enumerate(train_loader):
@@ -49,7 +49,7 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         disc_scaler.update()
 
         # perform all steps again with new discriminator for updating generator
-        with amp.autocast()
+        with amp.autocast():
             disc_fake = discriminator(inp, pred)
             gen_loss = _gen_loss(disc_fake, pred, tar, bce, l1)
 
@@ -88,7 +88,7 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
 #     return y_true, y_pred, running_loss
 
 
-def train(generator, discriminator):
+def train(generator, discriminator, train_loader):
     """
     generator: model of gen
     discriminator: model of disc
@@ -142,7 +142,7 @@ def train(generator, discriminator):
 def main(dataset):
     # create instances of generator and discriminator
     generator = Generator(in_channels=dataset.in_channels).cuda()
-    discriminator = Discriminator(in_channels=in_channels).cuda()
+    discriminator = Discriminator(in_channels=dataset.in_channels).cuda()
 
     # put in training mode
     generator.train()
@@ -154,6 +154,6 @@ def main(dataset):
 if __name__ == "__main__":
     
     # declare dataset
-    dataset = None 
+    dataset = Cityscape() 
     main(dataset)
 
