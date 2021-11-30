@@ -3,3 +3,7 @@
 
 # ignore all images
 *.jpg
+
+# messing around 
+dataset-tommy.py
+test.py

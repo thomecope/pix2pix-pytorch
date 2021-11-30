@@ -36,7 +36,7 @@ class MRIDataset(Dataset):
 
 if __name__ == "__main__":
     # Test to make sure it runs with no errors
-    data_fake = MRIDataset(root_dir='/Users/amurguia/Documents/EECS545/eecs545project/brain_images_concatenated/train')
+    data_fake = MRIDataset(root_dir='./brain_images_concatenated/train')
     data_fake_generator = DataLoader(data_fake, batch_size=1, shuffle=False)
     img_fake = next(iter(data_fake_generator))[0]
     plt.imshow(img_fake.permute(1, 2, 0))
