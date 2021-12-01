@@ -14,10 +14,10 @@ def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, dis
         'm1_state_dict': generator.state_dict(),
         'm2_state_dict': discriminator.state_dict(),
         'opt1_state_dict': opt_gen.state_dict(),
-        'opt2_state_dict': opt_disc.state_dict();
-        's1_state_dict': gen_scaler.state_dict();
-        's2_state_dict': disc_scaler.state_dict()
-        'stats': stats,
+        'opt2_state_dict': opt_disc.state_dict(),
+        's1_state_dict': gen_scaler.state_dict(),
+        's2_state_dict': disc_scaler.state_dict(),
+        'stats': stats
     }
 
     if not os.path.exists(checkpoint_dir):

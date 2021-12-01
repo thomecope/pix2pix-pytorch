@@ -7,6 +7,8 @@ import checkpoint
 import time
 import torchvision.utils as utils
 import os
+from dataset_tommy import Pix2pix_Dataset
+from torch.utils.data import DataLoader
 
 def _disc_loss(disc_real, disc_fake,  bce):
 
@@ -24,7 +26,7 @@ def _gen_loss(disc_fake, pred, tar, bce, l1):
 
     return gan_loss + config.LAMBDA * l1_loss 
 
-def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1):
+def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch):
     
     for idx, (inp, tar) in enumerate(train_loader):
         
@@ -61,20 +63,21 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         gen_scaler.step(opt_gen)
         gen_scaler.update()
 
-        print('Disc loss: ', disc_loss)
-        print('Gen loss: ', gen_loss)
+        # if epoch%5==0:
+        #     print('Disc loss: ', disc_loss)
+        #     print('Gen loss: ', gen_loss)
 
 def evaluate_epoch(data_loader, generator, epoch):
     inp, tar = next(iter(val_loader))
-    inp.to(config.DEVICE))
-    tar.to(config.Device))
+    inp.to(config.DEVICE)
+    tar.to(config.Device)
     
     generator.eval()
     with torch.no_grad():
         pred = generator(inp)
         utils.make_grid([inp, pred, tar])
-        utils.save_image(os.path.join(config.SAVE_FOLDER, epoch, 'test.jpg')
-    
+        utils.save_image(os.path.join(config.SAVE_FOLDER, epoch, 'test.jpg'))
+
     generator.train()
 
 
@@ -115,7 +118,7 @@ def train(train_loader, val_loader):
         print('===========================================================')
         print('Training Epoch ', epoch, '...')
         start_time = time.time()
-        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce, l1)
+        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch)
         
         if epoch%5 == 0:
             evaluate_epoch(val_loader, generator, epoch)
@@ -124,7 +127,7 @@ def train(train_loader, val_loader):
         checkpoint.save_checkpoint(
             generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 
             epoch + 1, config.CKPT_PATH, None)
-        print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete in ' time.time()-start_time)
+        print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete in ', time.time()-start_time)
     
     print('Finished Training')
 
@@ -132,10 +135,10 @@ def train(train_loader, val_loader):
 if __name__ == "__main__":
 
     training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True)
-    train_loader = DataLoader(training_data, batch_size=BATCH_SIZE,shuffle=True)
+    train_loader = DataLoader(training_data, batch_size=config.BATCH_SIZE,shuffle=True)
 
     validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False)
-    validation_loader = DataLoader(validation_data, batch_size=BATCH_SIZE,shuffle=False)
+    validation_loader = DataLoader(validation_data, batch_size=config.BATCH_SIZE,shuffle=False)
     
     # declare dataset
     train(train_loader, validation_loader)
