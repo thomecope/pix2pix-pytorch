@@ -40,7 +40,7 @@ class mri_dataset:
         return image
 
     def get_train_numpy(self):
-        train_dataset = torchvision.datasets.ImageFolder(os.path.join('/Users/amurguia/Documents/EECS545/eecs545project', self.dataset_path, 'train'))
+        train_dataset = torchvision.datasets.ImageFolder(os.path.join('.', self.dataset_path, 'train'))
         train_x = np.zeros((len(train_dataset), 224, 224, 3))
         # train_x = np.zeros((len(train_dataset), 64, 64, 3))
         for i, (img, _) in enumerate(train_dataset):
@@ -71,11 +71,11 @@ class mri_dataset:
 
     def get_dataloaders(self):
         # train set
-        train_set = torchvision.datasets.ImageFolder('/Users/amurguia/Documents/EECS545/eecs545project/brain_images_concatenated/train', transform=self.transform)
+        train_set = torchvision.datasets.ImageFolder('./brain_images_concatenated/train', transform=self.transform)
         train_loader = torch.utils.data.DataLoader(train_set, batch_size=self.batch_size, shuffle=True)
 
         # validation set
-        val_set = torchvision.datasets.ImageFolder('/Users/amurguia/Documents/EECS545/eecs545project/brain_images_concatenated/val', transform=self.transform)
+        val_set = torchvision.datasets.ImageFolder('./brain_images_concatenated/val', transform=self.transform)
         val_loader = torch.utils.data.DataLoader(val_set, batch_size=self.batch_size, shuffle=False)
 
         return train_loader, val_loader
@@ -94,7 +94,7 @@ class mri_dataset:
 
 
 if __name__ == '__main__':
-    dataset = mri_dataset(root_dir='/Users/amurguia/Documents/EECS545/eecs545project/brain_images_concatenated/train')
+    dataset = mri_dataset(root_dir='./brain_images_concatenated/train')
     #dataset = mri_dataset()
     print(dataset.train_dataset.shape)
     images, labels = iter(dataset.train_loader).next()

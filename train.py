@@ -4,6 +4,11 @@ from Discriminator import Discriminator
 from Generator import Generator
 import config
 import checkpoint
+import time
+import torchvision.utils as utils
+import os
+from dataset_temp import Pix2pix_Dataset
+from torch.utils.data import DataLoader
 
 def _disc_loss(disc_real, disc_fake,  bce):
 
@@ -15,13 +20,14 @@ def _disc_loss(disc_real, disc_fake,  bce):
 
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
-    # discriminator losses
-    gan_loss = bce(disc_fake, torch.ones_like(disc_real))
+    # generator losses
+    gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
-    return gan_loss + config.LAMBDA * l1_loss  
+    return gan_loss + config.LAMBDA * l1_loss 
 
-def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1):
+def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch):
+    
     for idx, (inp, tar) in enumerate(train_loader):
         
         # clear gradients:
@@ -29,8 +35,8 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         opt_gen.zero_grad()
 
         # move to variables to cuda
-        inp = inp.cuda()
-        tar = tar.cuda()
+        inp = inp.to(config.DEVICE)
+        tar = tar.to(config.DEVICE)
 
         # calc values with fp16
         with amp.autocast():
@@ -49,7 +55,7 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         disc_scaler.update()
 
         # perform all steps again with new discriminator for updating generator
-        with amp.autocast()
+        with amp.autocast():
             disc_fake = discriminator(inp, pred)
             gen_loss = _gen_loss(disc_fake, pred, tar, bce, l1)
 
@@ -57,45 +63,40 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         gen_scaler.step(opt_gen)
         gen_scaler.update()
 
-# def _evaluate_epoch(plotter, train_loader, val_loader, model, criterion, epoch):
-#     """
-#     Evaluates the model on the train and validation set.
-#     """
-#     stat = []
-#     for data_loader in [val_loader, train_loader]:
-#         y_true, y_pred, running_loss = evaluate_loop(data_loader, model, criterion)
-#         total_loss = np.sum(running_loss) / y_true.size(0)
-#         total_acc = accuracy(y_true, y_pred)
-#         stat += [total_acc, total_loss]
-#     plotter.stats.append(stat)
-#     plotter.log_cnn_training(epoch)
-#     plotter.update_cnn_training_plot(epoch)
+        # if epoch%5==0:
+        #     print('Disc loss: ', disc_loss)
+        #     print('Gen loss: ', gen_loss)
+
+def evaluate_epoch(data_loader, generator, epoch):
+    inp, tar = next(iter(data_loader))
+    inp.to(config.DEVICE)
+    tar.to(config.Device)
+    
+    generator.eval()
+    with torch.no_grad():
+        pred = generator(inp)
+        utils.make_grid([inp, pred, tar])
+        utils.save_image(os.path.join(config.SAVE_FOLDER, epoch, 'test.jpg'))
+
+    generator.train()
 
 
-# def evaluate_loop(data_loader, model, criterion=None):
-#     model.eval()
-#     y_true, y_pred, running_loss = [], [], []
-#     for X, y in data_loader:
-#         with torch.no_grad():
-#             output = model(X)
-#             predicted = predictions(output.data)
-#             y_true.append(y)
-#             y_pred.append(predicted)
-#             if criterion is not None:
-#                 running_loss.append(criterion(output, y).item() * X.size(0))
-#     model.train()
-#     y_true, y_pred = torch.cat(y_true), torch.cat(y_pred)
-#     return y_true, y_pred, running_loss
-
-
-def train(generator, discriminator):
+def train(train_loader, val_loader):
     """
     generator: model of gen
     discriminator: model of disc
     """
 
+    # create instances of generator and discriminator
+    generator = Generator(in_channels=config.IN_CHANNELS).to(config.DEVICE)
+    discriminator = Discriminator(in_channels=config.IN_CHANNELS).to(config.DEVICE)
+
+    # put in training mode
+    generator.train()
+    discriminator.train()
+
     # define loss criterion
-    bce = torch.nn.BCELoss()
+    bce = torch.nn.BCEWithLogitsLoss()
     l1 = torch.nn.L1Loss()
 
     # define optimizers
@@ -111,49 +112,37 @@ def train(generator, discriminator):
     generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
         generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=True, force=config.FORCE)
 
-    # Create plotter
-    # plot_name = config['plot_name'] if 'plot_name' in config else 'CNN'
-    # plotter = Plotter(stats, plot_name)
-
-    # Evaluate the model
-    # _evaluate_epoch(plotter, train_loader, val_loader, model, criterion, start_epoch)
-
     # iterate through epochs
     for epoch in range(start_epoch, config.EPOCHS):
         # train model
-        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce, l1)
-
-        # Evaluate model on training and validation set
-        # _evaluate_epoch(plotter, train_loader, val_loader, model, criterion, epoch + 1)
-
+        print('===========================================================')
+        print('Training Epoch ', epoch, '...')
+        start_time = time.time()
+        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch)
+        
+        if epoch%5 == 0:
+            evaluate_epoch(val_loader, generator, epoch)
+             
         # save checkpoint (saving none for stats currently)
-
         checkpoint.save_checkpoint(
             generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 
             epoch + 1, config.CKPT_PATH, None)
-        print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete')
+        print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete in ', time.time()-start_time)
     
     print('Finished Training')
 
-    # Save figure and keep plot open
-    # plotter.save_cnn_training_plot()
-    # plotter.hold_training_plot()
-
-def main(dataset):
-    # create instances of generator and discriminator
-    generator = Generator(in_channels=dataset.in_channels).cuda()
-    discriminator = Discriminator(in_channels=in_channels).cuda()
-
-    # put in training mode
-    generator.train()
-    discriminator.train()
-
-    train(generator, discriminator, dataset)
-
 
 if __name__ == "__main__":
+
+    training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True)
+    train_loader = DataLoader(training_data, batch_size=config.BATCH_SIZE,shuffle=True)
+
+    validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False)
+    validation_loader = DataLoader(validation_data, batch_size=config.BATCH_SIZE,shuffle=False)
     
     # declare dataset
-    dataset = None 
-    main(dataset)
+    train(train_loader, validation_loader)
+
+
+    
 

@@ -2,4 +2,7 @@
 *.txt
 
 # ignore all images
-*.jpg
+# *.jpg
+
+# messing around 
+test.py
