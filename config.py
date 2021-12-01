@@ -6,8 +6,7 @@ BETA_1 = 0.5
 BETA_2 = 0.999
 
 # training info
-dev = "cuda" if torch.cuda.is_available() else "cpu"
-DEVICE = torch.device(dev)  
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
 EPOCHS = 20
 BATCH_SIZE = 1
 
