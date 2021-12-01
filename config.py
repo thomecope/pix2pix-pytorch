@@ -18,7 +18,11 @@ FORCE = False
 CKPT_PATH = 'checkpoints/pix2pix'
 MAX_TO_KEEP = 5
 
-# <<<<<<< main
+# dataset information
+IN_CHANNELS = 3
+TRAIN_DATA_PATH = 'facades/train'
+VAL_DATA_PATH = 'facades/val'
+
 
 # import torch
 # import albumentations as A
@@ -59,9 +63,5 @@ MAX_TO_KEEP = 5
 #         ToTensorV2(),
 #     ]
 # )
-# =======
-# dataset information
-IN_CHANNELS = 3
-TRAIN_DATA_PATH = 'facades/train'
-VAL_DATA_PATH = 'facades/val'
-# >>>>>>> main
+
+
