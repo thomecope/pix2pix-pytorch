@@ -78,7 +78,7 @@ class Discriminator(nn.Module):
             
             nn.Sequential(
             nn.Conv2d( in_channels, out_channels = 1, kernel_size = 4, stride = 1, padding = 1, padding_mode = "reflect"),
-            nn.Sigmoid() #Map the output to be between 0,1 
+            # nn.Sigmoid() #Map the output to be between 0,1 
             )
         
         )

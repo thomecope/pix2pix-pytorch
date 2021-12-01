@@ -20,7 +20,7 @@ def _disc_loss(disc_real, disc_fake,  bce):
 
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
-    # discriminator losses
+    # generator losses
     gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
@@ -68,7 +68,7 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         #     print('Gen loss: ', gen_loss)
 
 def evaluate_epoch(data_loader, generator, epoch):
-    inp, tar = next(iter(val_loader))
+    inp, tar = next(iter(data_loader))
     inp.to(config.DEVICE)
     tar.to(config.Device)
     
@@ -96,7 +96,7 @@ def train(train_loader, val_loader):
     discriminator.train()
 
     # define loss criterion
-    bce = torch.nn.BCELoss()
+    bce = torch.nn.BCEWithLogitsLoss()
     l1 = torch.nn.L1Loss()
 
     # define optimizers
