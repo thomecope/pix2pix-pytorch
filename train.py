@@ -67,10 +67,12 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         #     print('Disc loss: ', disc_loss)
         #     print('Gen loss: ', gen_loss)
 
+#
+
 def evaluate_epoch(data_loader, generator, epoch):
     inp, tar = next(iter(data_loader))
     inp.to(config.DEVICE)
-    tar.to(config.Device)
+    tar.to(config.DEVICE)
     
     generator.eval()
     with torch.no_grad():
