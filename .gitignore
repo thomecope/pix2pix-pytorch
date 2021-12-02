@@ -1,8 +1,12 @@
 # ignore my todo file
-*.txt
+todo.txt
 
 # ignore all images
 # *.jpg
 
 # messing around 
 test.py
+
+# lets ignore logs and checkpoints for now
+checkpoints/
+logs/

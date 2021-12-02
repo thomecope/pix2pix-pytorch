@@ -14,9 +14,10 @@ BATCH_SIZE = 1
 LAMBDA = 100
 
 # load checkpoint? 
-FORCE = False
+FORCE = True
 CKPT_PATH = 'checkpoints/pix2pix'
 MAX_TO_KEEP = 5
+SAVE_FOLDER = 'sample_images'
 
 # dataset information
 IN_CHANNELS = 3
