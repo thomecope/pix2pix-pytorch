@@ -6,3 +6,7 @@
 
 # messing around 
 test.py
+
+# lets ignore logs and checkpoints for now
+checkpoints/
+logs/
