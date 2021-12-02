@@ -3,6 +3,7 @@ todo.txt
 
 # ignore all images
 # *.jpg
+*.png
 
 # messing around 
 test.py
