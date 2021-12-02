@@ -17,6 +17,7 @@ LAMBDA = 100
 FORCE = False
 CKPT_PATH = 'checkpoints/pix2pix'
 MAX_TO_KEEP = 5
+SAVE_FOLDER = 'sample_images'
 
 # dataset information
 IN_CHANNELS = 3
