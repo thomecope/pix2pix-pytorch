@@ -71,14 +71,19 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
 
 def evaluate_epoch(data_loader, generator, epoch):
     inp, tar = next(iter(data_loader))
-    inp.to(config.DEVICE)
-    tar.to(config.DEVICE)
+    inp = inp.to(config.DEVICE)
+    tar = tar.to(config.DEVICE)
     
     generator.eval()
     with torch.no_grad():
         pred = generator(inp)
-        utils.make_grid([inp, pred, tar])
-        utils.save_image(os.path.join(config.SAVE_FOLDER, epoch, 'test.jpg'))
+        grid = utils.make_grid([torch.squeeze(inp), torch.squeeze(pred), torch.squeeze(tar)])*0.5+0.5
+        
+        path = os.path.join(config.SAVE_FOLDER)
+        if not os.path.exists(path):
+            os.makedirs(path)
+            
+        utils.save_image(grid, path + '/test'+str(epoch)+'.png')
 
     generator.train()
 
@@ -129,7 +134,7 @@ def train(train_loader, val_loader):
         checkpoint.save_checkpoint(
             generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 
             epoch + 1, config.CKPT_PATH, None)
-        print('Epoch ', epoch, ' out of ', config.EPOCHS, ' complete in ', time.time()-start_time)
+        print('Epoch ', epoch+1, ' out of ', config.EPOCHS, ' complete in ', time.time()-start_time)
     
     print('Finished Training')
 
