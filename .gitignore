@@ -3,9 +3,10 @@ todo.txt
 
 # ignore all images
 # *.jpg
+# *.png
 
 # messing around 
-test.py
+# test.py
 
 # lets ignore logs and checkpoints for now
 checkpoints/

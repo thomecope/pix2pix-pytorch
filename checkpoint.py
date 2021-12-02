@@ -144,6 +144,15 @@ def delete_old_checkpoint(checkpoint_dir):
     """
     Delete all checkpoints in directory.
     """
-    filelist = [f for f in os.listdir(checkpoint_dir) if f.endswith(".pth.tar")]
+    def get_epoch(cp):
+        return int(cp.split('epoch=')[-1].split('.checkpoint.pth.tar')[0])
+
+    filelist = [f for f in os.listdir(checkpoint_dir) if f.startswith('epoch=') and f.endswith('.checkpoint.pth.tar')]
+    filelist.sort(key=lambda x: get_epoch(x))
+    
+    epochs = [get_epoch(f) for f in filelist]
+    lowest = min(epochs)
+    filename = os.path.join(checkpoint_dir, 'epoch={}.checkpoint.pth.tar'.format(lowest))
+
     if len(filelist)>config.MAX_TO_KEEP:
-        os.remove(os.path.join(checkpoint_dir, min(filelist)))
+        os.remove(filename)

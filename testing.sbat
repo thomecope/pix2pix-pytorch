@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#SBATCH --job-name=testing
+#SBATCH --account=eecs545f21_class
+#SBATCH --partition=spgpu
+
+#SBATCH --gpus=1
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=30:00
+
+#SBATCH --mem=16g
+#SBATCH --mail-user=thomcope@umich.edu
+#SBATCH --mail-type=ALL
+
+#SBATCH --output=./logs/%x-%j.log
+
+if [[ $SLURM_JOB_NODELIST ]] ; then
+   echo "Running on"
+   scontrol show hostnames $SLURM_JOB_NODELIST
+fi
+
+my_job_header
+ml restore module545
+python3.8 test.py
+
+echo "Done"
