@@ -51,7 +51,7 @@ def test(test_loader):
             if not os.path.exists(path):
                 os.makedirs(path)
                 
-            utils.save_image(grid, path + '/test-'+str(epoch)+'.png')
+            utils.save_image(grid, path + '/test-'+str(idx)+'.png')
 
     
     print('Finished Training')
