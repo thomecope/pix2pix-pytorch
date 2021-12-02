@@ -6,7 +6,7 @@ todo.txt
 # *.png
 
 # messing around 
-test.py
+# test.py
 
 # lets ignore logs and checkpoints for now
 checkpoints/

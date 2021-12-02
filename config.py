@@ -17,12 +17,18 @@ LAMBDA = 100
 FORCE = True
 CKPT_PATH = 'checkpoints/pix2pix'
 MAX_TO_KEEP = 5
+
+# saving images
 SAVE_FOLDER = 'sample_images'
+TEST_SAVE_FOLDER = 'test_images/facades'
+
 
 # dataset information
 IN_CHANNELS = 3
 TRAIN_DATA_PATH = 'facades/train'
 VAL_DATA_PATH = 'facades/val'
+TEST_DATA_PATH = 'facades/test'
+
 
 
 # import torch
