@@ -155,4 +155,4 @@ def delete_old_checkpoint(checkpoint_dir):
     filename = os.path.join(checkpoint_dir, 'epoch={}.checkpoint.pth.tar'.format(lowest))
 
     if len(filelist)>config.MAX_TO_KEEP:
-        os.remove(os.path.join(checkpoint_dir, filename))
+        os.remove(filename)
