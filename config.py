@@ -15,21 +15,23 @@ LAMBDA = 100
 
 # load checkpoint? 
 FORCE = True
-CKPT_PATH = 'checkpoints/pix2pix'
-MAX_TO_KEEP = 5
+# CKPT_PATH = 'checkpoints/pix2pix'
+CKPT_PATH = 'checkpoints/pix2pix/cityscapes'
+MAX_TO_KEEP = 3
 
 # saving images
-SAVE_FOLDER = 'sample_images'
-TEST_SAVE_FOLDER = 'test_images/facades'
-
+SAVE_FOLDER = 'sample_images/cityscapes'
+# TEST_SAVE_FOLDER = 'test_images/facades'
+TEST_SAVE_FOLDER = 'test_images/cityscapes'
 
 # dataset information
 IN_CHANNELS = 3
-TRAIN_DATA_PATH = 'facades/train'
-VAL_DATA_PATH = 'facades/val'
-TEST_DATA_PATH = 'facades/test'
-
-
+# TRAIN_DATA_PATH = 'facades/train'
+# VAL_DATA_PATH = 'facades/val'
+# TEST_DATA_PATH = 'facades/test'
+TRAIN_DATA_PATH = 'cityscapes/train'
+VAL_DATA_PATH = 'cityscapes/val'
+TEST_DATA_PATH = 'cityscapes/val'
 
 # import torch
 # import albumentations as A
