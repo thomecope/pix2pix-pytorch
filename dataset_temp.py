@@ -34,8 +34,13 @@ class Pix2pix_Dataset(Dataset):
         w = image.shape[1]
         w = w // 2
 
-        inp = Image.fromarray(image[:, w:, :])
-        tar = Image.fromarray(image[:, :w, :])
+        if self.grayscale:
+            inp = Image.fromarray(image[:, w:])
+            tar = Image.fromarray(image[:, :w])
+
+        else: 
+            inp = Image.fromarray(image[:, w:, :])
+            tar = Image.fromarray(image[:, :w, :])
 
         # Do transforms
         if self.grayscale and self.t_flag:
