@@ -11,3 +11,6 @@ todo.txt
 # lets ignore logs and checkpoints for now
 checkpoints/
 logs/
+
+# not to mess up each others sbats
+*.sbat
