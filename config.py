@@ -7,7 +7,7 @@ BETA_2 = 0.999
 
 # training info
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-EPOCHS = 200
+EPOCHS = 20
 BATCH_SIZE = 1
 
 # hyperparams
@@ -15,10 +15,10 @@ LAMBDA = 100
 
 # load checkpoint? 
 FORCE = True
-# CKPT_PATH = 'checkpoints/pix2pix'
+CKPT_PATH = 'checkpoints/pix2pix/facades2'
 # CKPT_PATH = 'checkpoints/pix2pix/cityscapes'
 # CKPT_PATH = 'checkpoints/pix2pix/brain'
-CKPT_PATH = 'checkpoints/pix2pix/dogs'
+# CKPT_PATH = 'checkpoints/pix2pix/dogs'
 MAX_TO_KEEP = 3
 
 # saving images
@@ -31,21 +31,21 @@ SAVE_FOLDER = 'sample_images/dogs'
 TEST_SAVE_FOLDER = 'test_images/dogs'
 
 # dataset information
-# IN_CHANNELS = 3
-IN_CHANNELS = 1
-GRAYSCALE = True
-# TRAIN_DATA_PATH = 'facades/train'
-# VAL_DATA_PATH = 'facades/val'
-# TEST_DATA_PATH = 'facades/test'
+IN_CHANNELS = 3
+# IN_CHANNELS = 1
+# GRAYSCALE = True
+TRAIN_DATA_PATH = 'facades/train'
+VAL_DATA_PATH = 'facades/val'
+TEST_DATA_PATH = 'facades/test'
 # TRAIN_DATA_PATH = 'cityscapes/train'
 # VAL_DATA_PATH = 'cityscapes/val'
 # TEST_DATA_PATH = 'cityscapes/val'
 # TRAIN_DATA_PATH = 'brain_data/train'
 # VAL_DATA_PATH = 'brain_data/val'
 # TEST_DATA_PATH = 'brain_data/val'
-TRAIN_DATA_PATH = 'dog_data/train'
-VAL_DATA_PATH = 'dog_data/test'
-TEST_DATA_PATH = 'dog_data/test'
+# TRAIN_DATA_PATH = 'dog_data/train'
+# VAL_DATA_PATH = 'dog_data/test'
+# TEST_DATA_PATH = 'dog_data/test'
 
 # import torch
 # import albumentations as A
