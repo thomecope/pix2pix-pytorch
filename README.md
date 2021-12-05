@@ -1,9 +1,9 @@
-# Image-To-Image Translation
-PyTorch implementation of Phillip Isola's `pix2pix` conditional GAN. 
+# image-To-image translation
+pytorch implementation of phillip isola's `pix2pix` conditional gan. 
 
-Paper Details: https://arxiv.org/abs/1611.07004
+paper details: https://arxiv.org/abs/1611.07004
 
-Implementation done for EECS 545, FA21. 
+implementation done for eecs 545, fa21. 
 
 ## steps for training on great lakes cluster:
 1. connect to umich vpn (i usually choose all traffic, idk if it matters)
