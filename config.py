@@ -22,13 +22,15 @@ CKPT_PATH = 'checkpoints/pix2pix/facades2'
 MAX_TO_KEEP = 3
 
 # saving images
+SAVE_FOLDER = 'sample_images/facades2'
 # SAVE_FOLDER = 'sample_images/cityscapes'
 # SAVE_FOLDER = 'sample_images/brain'
-SAVE_FOLDER = 'sample_images/dogs'
+# SAVE_FOLDER = 'sample_images/dogs'
 # TEST_SAVE_FOLDER = 'test_images/facades'
+TEST_SAVE_FOLDER = 'test_images/facades2'
 # TEST_SAVE_FOLDER = 'test_images/cityscapes'
 # TEST_SAVE_FOLDER = 'test_images/brain'
-TEST_SAVE_FOLDER = 'test_images/dogs'
+# TEST_SAVE_FOLDER = 'test_images/dogs'
 
 # dataset information
 IN_CHANNELS = 3
