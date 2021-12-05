@@ -1,26 +1,32 @@
+# torch packages:
 import torch
 import torch.cuda.amp as amp
+from torch.utils.data import DataLoader
+import torchvision.utils as utils
+
+# python packages:
+import time
+import os
+
+# our packages:
 from Discriminator import Discriminator
 from Generator import Generator
 import config
 import checkpoint
-import time
-import torchvision.utils as utils
-import os
 from dataset_temp import Pix2pix_Dataset
-from torch.utils.data import DataLoader
+
 
 def _disc_loss(disc_real, disc_fake,  bce):
 
-    # discriminator losses
-    real_loss = bce(disc_real, torch.ones_like(disc_real))
+    # discriminator losses: 
+    real_loss = bce(disc_real, torch.ones_like(disc_real)) 
     fake_loss = bce(disc_fake, torch.zeros_like(disc_fake))
 
     return (real_loss + fake_loss)/2
 
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
-    # generator losses
+    # generator losses:
     gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
