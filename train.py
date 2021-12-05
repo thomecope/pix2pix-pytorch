@@ -147,10 +147,10 @@ def train(train_loader, val_loader):
 
 if __name__ == "__main__":
 
-    training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True)
+    training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True, grayscale=config.GRAYSCALE)
     train_loader = DataLoader(training_data, batch_size=config.BATCH_SIZE,shuffle=True)
 
-    validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False)
+    validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False, grayscale=config.GRAYSCALE)
     validation_loader = DataLoader(validation_data, batch_size=config.BATCH_SIZE,shuffle=False)
     
     # declare dataset

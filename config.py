@@ -33,6 +33,7 @@ TEST_SAVE_FOLDER = 'test_images/dogs'
 # dataset information
 # IN_CHANNELS = 3
 IN_CHANNELS = 1
+GRAYSCALE = True
 # TRAIN_DATA_PATH = 'facades/train'
 # VAL_DATA_PATH = 'facades/val'
 # TEST_DATA_PATH = 'facades/test'
