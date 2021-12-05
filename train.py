@@ -18,15 +18,15 @@ from dataset_temp import Pix2pix_Dataset
 
 def _disc_loss(disc_real, disc_fake,  bce):
 
-    # discriminator losses
-    real_loss = bce(disc_real, torch.ones_like(disc_real))
+    # discriminator losses: 
+    real_loss = bce(disc_real, torch.ones_like(disc_real)) 
     fake_loss = bce(disc_fake, torch.zeros_like(disc_fake))
 
     return (real_loss + fake_loss)/2
 
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
-    # generator losses
+    # generator losses:
     gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
