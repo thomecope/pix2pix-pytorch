@@ -83,13 +83,13 @@ def evaluate_epoch(data_loader, generator, epoch):
     generator.eval()
     with torch.no_grad():
         pred = generator(inp)
-        grid = utils.make_grid([torch.squeeze(inp), torch.squeeze(pred), torch.squeeze(tar)])*0.5+0.5
+        grid = utils.make_grid([torch.squeeze(inp,0), torch.squeeze(pred,0), torch.squeeze(tar,0)])*0.5+0.5
         
         path = os.path.join(config.SAVE_FOLDER)
         if not os.path.exists(path):
             os.makedirs(path)
             
-        utils.save_image(grid, path + '/test'+str(epoch)+'.png')
+        utils.save_image(grid, path + '/sample-'+str(epoch)+'.png')
 
     generator.train()
 
