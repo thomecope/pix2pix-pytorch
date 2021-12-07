@@ -1,26 +1,32 @@
+# torch packages:
 import torch
 import torch.cuda.amp as amp
+from torch.utils.data import DataLoader
+import torchvision.utils as utils
+
+# python packages:
+import time
+import os
+
+# our packages:
 from Discriminator import Discriminator
 from Generator import Generator
 import config
 import checkpoint
-import time
-import torchvision.utils as utils
-import os
 from dataset_temp import Pix2pix_Dataset
-from torch.utils.data import DataLoader
+
 
 def _disc_loss(disc_real, disc_fake,  bce):
 
-    # discriminator losses
-    real_loss = bce(disc_real, torch.ones_like(disc_real))
+    # discriminator losses: 
+    real_loss = bce(disc_real, torch.ones_like(disc_real)) 
     fake_loss = bce(disc_fake, torch.zeros_like(disc_fake))
 
     return (real_loss + fake_loss)/2
 
 def _gen_loss(disc_fake, pred, tar, bce, l1):
 
-    # generator losses
+    # generator losses:
     gan_loss = bce(disc_fake, torch.ones_like(disc_fake))
     l1_loss = l1(pred, tar)
 
@@ -77,13 +83,13 @@ def evaluate_epoch(data_loader, generator, epoch):
     generator.eval()
     with torch.no_grad():
         pred = generator(inp)
-        grid = utils.make_grid([torch.squeeze(inp), torch.squeeze(pred), torch.squeeze(tar)])*0.5+0.5
+        grid = utils.make_grid([torch.squeeze(inp,0), torch.squeeze(pred,0), torch.squeeze(tar,0)])*0.5+0.5
         
         path = os.path.join(config.SAVE_FOLDER)
         if not os.path.exists(path):
             os.makedirs(path)
             
-        utils.save_image(grid, path + '/test'+str(epoch)+'.png')
+        utils.save_image(grid, path + '/sample-'+str(epoch)+'.png')
 
     generator.train()
 
@@ -141,10 +147,10 @@ def train(train_loader, val_loader):
 
 if __name__ == "__main__":
 
-    training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True)
+    training_data = Pix2pix_Dataset(config.TRAIN_DATA_PATH, t_flag=True, grayscale=config.GRAYSCALE)
     train_loader = DataLoader(training_data, batch_size=config.BATCH_SIZE,shuffle=True)
 
-    validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False)
+    validation_data = Pix2pix_Dataset(config.VAL_DATA_PATH, t_flag=False, grayscale=config.GRAYSCALE)
     validation_loader = DataLoader(validation_data, batch_size=config.BATCH_SIZE,shuffle=False)
     
     # declare dataset

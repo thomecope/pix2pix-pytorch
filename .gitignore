@@ -2,8 +2,8 @@
 todo.txt
 
 # ignore all images
-# *.jpg
-# *.png
+*.jpg
+*.png
 
 # messing around 
 # test.py
@@ -11,3 +11,6 @@ todo.txt
 # lets ignore logs and checkpoints for now
 checkpoints/
 logs/
+
+# not to mess up each others sbats
+*.sbat
