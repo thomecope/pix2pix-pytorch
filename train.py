@@ -69,12 +69,6 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         gen_scaler.step(opt_gen)
         gen_scaler.update()
 
-        # if epoch%5==0:
-        #     print('Disc loss: ', disc_loss)
-        #     print('Gen loss: ', gen_loss)
-
-#
-
 def evaluate_epoch(data_loader, generator, epoch):
     inp, tar = next(iter(data_loader))
     inp = inp.to(config.DEVICE)
