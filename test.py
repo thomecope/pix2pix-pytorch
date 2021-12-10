@@ -1,14 +1,19 @@
+# torch packages:
 import torch
 import torch.cuda.amp as amp
+from torch.utils.data import DataLoader
+import torchvision.utils as utils
+
+# python packages:
+import time
+import os
+
+# our packages:
 from Discriminator import Discriminator
 from Generator import Generator
 import config
 import checkpoint
-import time
-import torchvision.utils as utils
-import os
-from dataset_temp import Pix2pix_Dataset
-from torch.utils.data import DataLoader
+from dataset_final import Pix2pix_Dataset
 
 
 def test(test_loader):
@@ -35,16 +40,27 @@ def test(test_loader):
 
     # restore checkpoint (if possible)
     print('Loading model...')
+    
+    # FOR ON GREAT LAKES
+    # generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
+    #     generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=True, force=config.FORCE)
+    
+    # FOR ON PC
     generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
-        generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=True, force=config.FORCE)
+        generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=False, force=config.FORCE)
 
+    # put generator into eval mode
     generator.eval()
-    with torch.no_grad():      
+    with torch.no_grad(): 
+
         for idx, (inp, tar) in enumerate(test_loader):
             inp = inp.to(config.DEVICE)
             tar = tar.to(config.DEVICE)
             
+            # use generator to make prediction
             pred = generator(inp)
+
+            # saving image
             grid = utils.make_grid([torch.squeeze(inp), torch.squeeze(pred), torch.squeeze(tar)])*0.5+0.5
             
             path = os.path.join(config.TEST_SAVE_FOLDER)
@@ -54,7 +70,7 @@ def test(test_loader):
             utils.save_image(grid, path + '/test-'+str(idx)+'.png')
 
     
-    print('Finished Training')
+    print('Finished Testing')
     
 
 
