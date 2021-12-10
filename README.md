@@ -6,12 +6,12 @@ paper details: https://arxiv.org/abs/1611.07004
 implementation done for eecs 545, fa21. 
 
 ## to run:
--requires python3.8 with cuda 11.3
--run `pip3 install -r requirements.txt`
--add your dataset
--update filepaths in `config.py`
--to train, run: `python train.py`
--to test, run: `python test.py`
+* requires python3.8 with cuda 11.3
+* run `pip3 install -r requirements.txt`
+* add your dataset
+* update filepaths in `config.py`
+* to train, run: `python train.py`
+* to test, run: `python test.py`
 
 ## steps for training on great lakes cluster:
 1. connect to umich vpn
