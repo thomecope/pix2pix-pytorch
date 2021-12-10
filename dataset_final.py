@@ -1,5 +1,3 @@
-# tommy cope
-
 import os
 import matplotlib.pyplot as plt   
 import torch
@@ -14,7 +12,8 @@ class Pix2pix_Dataset(Dataset):
     def __init__(self, root_dir, t_flag, grayscale=False):
         '''Initialize directory, transforms'''
         self.root_dir = root_dir
-        self.list_files = os.listdir(self.root_dir)
+        # self.list_files = os.listdir(self.root_dir)
+        self.list_files = sorted(os.listdir(self.root_dir), key=lambda f:int(f[:-4])) # to retain order
         self.t_flag = t_flag
         self.grayscale=grayscale
         self.inchannels = 1 if self.grayscale else 3
@@ -33,6 +32,8 @@ class Pix2pix_Dataset(Dataset):
         # Get inp and tar images
         w = image.shape[1]
         w = w // 2
+
+        # Perform transforms on both images accordingly
 
         if self.grayscale:
             inp = Image.fromarray(image[:, w:])

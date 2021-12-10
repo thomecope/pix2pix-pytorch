@@ -4,13 +4,17 @@ todo.txt
 # ignore all images
 *.jpg
 *.png
+*.zip
 
 # messing around 
-# test.py
+*.ipynb
+adversarial_noise.py
 
 # lets ignore logs and checkpoints for now
 checkpoints/
+*.tar
 logs/
 
 # not to mess up each others sbats
 *.sbat
+
