@@ -8,11 +8,12 @@ from torch.utils.data import DataLoader
 
 
 class EvaluationDataset(Dataset):
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, model="Inception"):
         self.root_dir = root_dir
-        self.list_files = os.listdir(self.root_dir)
+        self.model = model
+        self.list_files = sorted(os.listdir(self.root_dir))
         self.transforms = self.get_transforms()
-        # print(self.list_files)
+        print(self.list_files)
 
     def __len__(self):
         return len(self.list_files)
@@ -20,43 +21,57 @@ class EvaluationDataset(Dataset):
     def __getitem__(self, item):
         img_file = self.list_files[item]
         img_path = os.path.join(self.root_dir, img_file)
-        image_pil = Image.open(img_path)
-        image = self.transforms(image_pil)
-        return image
+        image_pil = np.array(Image.open(img_path))
+        # print(image_pil.shape)
+        # Hardcoded until we guarantee the output size
+        segment = Image.fromarray(image_pil[:, :256, :])
+        generated = Image.fromarray(image_pil[:, 256:516, :])
+        real = Image.fromarray(image_pil[:, 516:, :])
+        # image = self.transforms(image_pil)
+        return self.transforms(segment), self.transforms(generated), self.transforms(real)
 
     def get_transforms(self):
-        transform_list = [
-            # These were specified for the inception net model
-            # https://pytorch.org/hub/pytorch_vision_inception_v3/
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
-            transforms.ToTensor(),
-            # For these images, the normalization causes it to appear all white, consider changing?
-            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ]
-        transform = transforms.Compose(transform_list)
-        return transform
+        if self.model == "Inception":
+            transform_list = [
+                # These were specified for the inception net model
+                # https://pytorch.org/hub/pytorch_vision_inception_v3/
+                transforms.Resize(299),
+                transforms.CenterCrop(299),
+                transforms.ToTensor(),
+                # For these images, the normalization causes it to appear all white, consider changing?
+                # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]
+            transform = transforms.Compose(transform_list)
+            return transform
+
+        if self.model == "FCN":
+            transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                                                                        std=[0.229, 0.224, 0.225]), ])
+            return transform
+
+    def get_list(self):
+        return self.list_files
+
 
 
 if __name__ == "__main__":
     # Test to make sure it runs with no errors
-    data_fake = EvaluationDataset(root_dir="data/images/gan/fake")
-    data_fake_generator = DataLoader(data_fake, batch_size=1, shuffle=False)
-    img_fake = next(iter(data_fake_generator))[0]
-    plt.imshow(img_fake.permute(1, 2, 0))
+    eval_test = EvaluationDataset(root_dir="sample_images")
+    segment, generated, real = next(iter(eval_test))
+
+    print(type(segment))
+
+    plt.imshow(segment.permute(1, 2, 0))
     plt.show()
 
-    data_real = EvaluationDataset(root_dir="data/images/gan/real")
-    data_real_generator = DataLoader(data_real, batch_size=2, shuffle=False)
-    img_real = next(iter(data_real_generator))[0]
-    plt.imshow(img_real.permute(1, 2, 0))
+    plt.imshow(generated.permute(1, 2, 0))
     plt.show()
 
-    # For some reason the code below doesnt work in Pycharm?
-    fig, axs = plt.subplots(2, 1)
-    axs[0].imshow(img_fake.permute(1, 2, 0))
-    axs[0].set_title('Fake')
-    axs[1].imshow(img_real.permute(1, 2, 0))
-    axs[1].set_title('Real')
+    plt.imshow(real.permute(1, 2, 0))
+    plt.show()
 
-    #fig.show()
+    # Test it on the Dataloader
+
+    eval_test_loader = DataLoader(eval_test, batch_size=1, shuffle=False)
+    segment_2, generated_2, real_2 = next(iter(eval_test_loader))
+    print(segment_2.shape)  # Should output (batch_size, 3 channels, 299, 299 if Inception)
