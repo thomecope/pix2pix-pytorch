@@ -47,10 +47,10 @@ def _gen_loss(disc_pred, pred, tar, bce, l1):
     """
 
     # generator losses:
-    gan_loss = bce(disc_pred, torch.ones_like(disc_pred))
+    pred_loss = bce(disc_pred, torch.ones_like(disc_pred))
     l1_loss = l1(pred, tar)
 
-    return gan_loss + config.LAMBDA * l1_loss 
+    return pred_loss + (config.LAMBDA * l1_loss)
 
 def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce, l1, epoch):
     """
