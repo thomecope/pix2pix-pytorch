@@ -1,0 +1,15 @@
+Test images ,,
+,FID,Inception
+Cityscapes ,104.31,2.15
+Facades,120.75,2.27
+Household,205.35,2.12
+Lung,268.66,2
+MRI,302.19,1
+,,
+Sample,,
+,FID best,FID worst
+Household,0.0002604127,0.010618269
+Lung,0.0114340335,0.033603266
+cityscapes,0.000007778406,0.015932202
+Facades,0.0000976149,0.012531786
+MRI,0.015190601,0.0544388
