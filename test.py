@@ -34,20 +34,16 @@ def test(test_loader):
     opt_gen = torch.optim.Adam(generator.parameters(), lr = config.LR, betas = (config.BETA_1, config.BETA_2))
     opt_disc = torch.optim.Adam(discriminator.parameters(), lr = config.LR, betas = (config.BETA_1, config.BETA_2))
 
-    # define scalers (automatic precision stuff)
-    gen_scaler = amp.GradScaler()
-    disc_scaler = amp.GradScaler()
-
     # restore checkpoint (if possible)
     print('Loading model...')
     
     # FOR ON GREAT LAKES
-    # generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
-    #     generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=True, force=config.FORCE)
+    # generator, discriminator, opt_gen, opt_disc, start_epoch, stats = checkpoint.restore_checkpoint(
+    #     generator, discriminator, opt_gen, opt_disc, config.CKPT_PATH, cuda=True, force=config.FORCE)
     
     # FOR ON PC
-    generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
-        generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=False, force=config.FORCE)
+    generator, discriminator, opt_gen, opt_disc, start_epoch, stats = checkpoint.restore_checkpoint(
+        generator, discriminator, opt_gen, opt_disc, config.CKPT_PATH, cuda=False, force=config.FORCE)
 
     # put generator into eval mode
     generator.eval()

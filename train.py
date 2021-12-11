@@ -52,13 +52,13 @@ def _gen_loss(disc_pred, pred, tar, bce, l1):
 
     return gan_loss + config.LAMBDA * l1_loss 
 
-def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch):
+def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce, l1, epoch):
     """
     Given the above information, trains the models on the dataset
     Running this once trains the models for one epoch
     """
     
-    for idx, (inp, tar) in enumerate(train_loader):
+    for inp, tar in train_loader:
         
         # clear gradients:
         opt_disc.zero_grad()
@@ -68,30 +68,24 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_
         inp = inp.to(config.DEVICE)
         tar = tar.to(config.DEVICE)
 
-        # calc values with fp16
-        with amp.autocast():
-            # evaluate models
-            pred = generator(inp)
-            disc_tar = discriminator(inp, tar)
-            disc_pred = discriminator(inp, pred.detach()) # detach to retain computational graph
+        # evaluate models
+        pred = generator(inp)
+        disc_tar = discriminator(inp, tar)
+        disc_pred = discriminator(inp, pred.detach()) # detach to retain computational graph
 
-            # calculate discriminator loss first
-            disc_loss = _disc_loss(disc_tar, disc_pred, bce)
+        # calculate discriminator loss first
+        disc_loss = _disc_loss(disc_tar, disc_pred, bce)
 
-        # update scaler (scales losses to avoid underflow)
         # take backward step on discriminator
-        disc_scaler.scale(disc_loss).backward()
-        disc_scaler.step(opt_disc)
-        disc_scaler.update()
+        disc_loss.backward()
+        opt_disc.step()
 
         # perform all steps again with new discriminator for updating generator
-        with amp.autocast():
-            disc_pred = discriminator(inp, pred)
-            gen_loss = _gen_loss(disc_pred, pred, tar, bce, l1)
-
-        gen_scaler.scale(gen_loss).backward()
-        gen_scaler.step(opt_gen)
-        gen_scaler.update()
+        disc_pred = discriminator(inp, pred)
+        gen_loss = _gen_loss(disc_pred, pred, tar, bce, l1)
+        
+        gen_loss.backward()
+        opt_gen.step()
 
 def evaluate_epoch(data_loader, generator, epoch):
     """
@@ -150,14 +144,10 @@ def train(train_loader, val_loader):
     opt_gen = torch.optim.Adam(generator.parameters(), lr = config.LR, betas = (config.BETA_1, config.BETA_2))
     opt_disc = torch.optim.Adam(discriminator.parameters(), lr = config.LR, betas = (config.BETA_1, config.BETA_2))
 
-    # define scalers (automatic mixed precision)
-    gen_scaler = amp.GradScaler()
-    disc_scaler = amp.GradScaler()
-
     # restore checkpoint (if possible)
     print('Loading model...')
-    generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, start_epoch, stats = checkpoint.restore_checkpoint(
-        generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, config.CKPT_PATH, cuda=True, force=config.FORCE)
+    generator, discriminator, opt_gen, opt_disc, start_epoch, stats = checkpoint.restore_checkpoint(
+        generator, discriminator, opt_gen, opt_disc, config.CKPT_PATH, cuda=True, force=config.FORCE)
 
     # iterate through epochs
     for epoch in range(start_epoch, config.EPOCHS):
@@ -166,7 +156,7 @@ def train(train_loader, val_loader):
         print('===========================================================')
         print('Training Epoch ', epoch, '...')
         start_time = time.time()
-        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, bce, l1, epoch)
+        _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce, l1, epoch)
         
         # generate sample image every 5
         if epoch%5 == 0:
@@ -174,8 +164,7 @@ def train(train_loader, val_loader):
              
         # save checkpoint
         checkpoint.save_checkpoint(
-            generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 
-            epoch + 1, config.CKPT_PATH, None)
+            generator, discriminator, opt_gen, opt_disc, epoch + 1, config.CKPT_PATH, None)
         print('Epoch ', epoch+1, ' out of ', config.EPOCHS, ' complete in ', time.time()-start_time)
     
     print('Finished Training')
