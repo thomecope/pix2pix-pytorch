@@ -5,7 +5,7 @@ import torch
 import config
 
 
-def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, epoch, checkpoint_dir, stats):
+def save_checkpoint(generator, discriminator, opt_gen, opt_disc, epoch, checkpoint_dir, stats):
     """
     Save model checkpoint.
     """
@@ -15,8 +15,6 @@ def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, dis
         'm2_state_dict': discriminator.state_dict(),
         'opt1_state_dict': opt_gen.state_dict(),
         'opt2_state_dict': opt_disc.state_dict(),
-        's1_state_dict': gen_scaler.state_dict(),
-        's2_state_dict': disc_scaler.state_dict(),
         'stats': stats
     }
 
@@ -30,7 +28,7 @@ def save_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, dis
 
 
 
-def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, checkpoint_dir, cuda=False, force=False):
+def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, checkpoint_dir, cuda=False, force=False):
     """
     If a checkpoint exists, restores the PyTorch model from the checkpoint.
     Returns the model, the current epoch, and training losses.
@@ -45,7 +43,7 @@ def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, 
 
     # No saved or don't want it: 
     if not cp_files or not force:    
-        return generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 0, []
+        return generator, discriminator, opt_gen, opt_disc, 0, []
     # Load the most recent:
     else:
         epochs = [get_epoch(cp) for cp in cp_files]
@@ -64,21 +62,19 @@ def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, 
             discriminator.load_state_dict(checkpoint['m2_state_dict'])
             opt_gen.load_state_dict(checkpoint['opt1_state_dict'])
             opt_disc.load_state_dict(checkpoint['opt2_state_dict'])
-            gen_scaler.load_state_dict(checkpoint['s1_state_dict'])
-            disc_scaler.load_state_dict(checkpoint['s2_state_dict'])
             print("=> Successfully restored checkpoint (trained for {} epochs)".format(checkpoint['epoch']))
         except:
             print("=> Checkpoint not successfully restored")
             raise
 
-        return generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, inp_epoch, stats
+        return generator, discriminator, opt_gen, opt_disc, inp_epoch, stats
 
     # if not cp_files:
     #     print('No saved model parameters found')
     #     if force:
     #         raise Exception('Checkpoint not found')
     #     else:
-    #         return generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 0, []
+    #         return generator, discriminator, opt_gen, opt_disc,  0, []
 
     # # Find latest epoch
     # epochs = [get_epoch(cp) for cp in cp_files]
@@ -95,7 +91,7 @@ def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, 
     #     if inp_epoch == 0:
     #         print("Checkpoint not loaded")
     #         clear_checkpoint(checkpoint_dir)
-    #         return generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, 0, []
+    #         return generator, discriminator, opt_gen, opt_disc, 0, []
     # else:
     #     print('Which epoch to load from? Choose from epochs below:')
     #     print(epochs)
@@ -120,14 +116,12 @@ def restore_checkpoint(generator, discriminator, opt_gen, opt_disc, gen_scaler, 
     #     discriminator.load_state_dict(checkpoint['m2_state_dict'])
     #     opt_gen.load_state_dict(checkpoint['opt1_state_dict'])
     #     opt_disc.load_state_dict(checkpoint['opt2_state_dict'])
-    #     gen_scaler.load_state_dict(checkpoint['s1_state_dict'])
-    #     disc_scaler.load_state_dict(checkpoint['s2_state_dict'])
     #     print("=> Successfully restored checkpoint (trained for {} epochs)".format(checkpoint['epoch']))
     # except:
     #     print("=> Checkpoint not successfully restored")
     #     raise
 
-    # return generator, discriminator, opt_gen, opt_disc, gen_scaler, disc_scaler, inp_epoch, stats
+    # return generator, discriminator, opt_gen, opt_disc, inp_epoch, stats
 
 
 def clear_checkpoint(checkpoint_dir):
