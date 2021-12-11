@@ -27,9 +27,9 @@ def _disc_loss(disc_tar, disc_pred,  bce):
     the computed loss for the discriminator
     """
 
-    # discriminator losses: 
-    tar_loss = bce(disc_tar, torch.ones_like(disc_tar)) 
-    pred_loss = bce(disc_pred, torch.zeros_like(disc_pred))
+    # discriminator losses: log(d(x,y)) + log(1-d(x,yhat)) 
+    tar_loss = bce(disc_tar, torch.ones_like(disc_tar)) # == mean(-[1*log(d(x,y)) + 0*log(1-d(x,y))])
+    pred_loss = bce(disc_pred, torch.zeros_like(disc_pred)) # == mean(-[0*log(d(x,yhat)) + 1*log(1-d(x,yhat))])
 
     return (tar_loss + pred_loss)/2
 
@@ -47,7 +47,7 @@ def _gen_loss(disc_pred, pred, tar, bce, l1):
     """
 
     # generator losses:
-    pred_loss = bce(disc_pred, torch.ones_like(disc_pred))
+    pred_loss = bce(disc_pred, torch.ones_like(disc_pred)) # == mean(-[1*log(d(x,yhat)) + 0*log(1-d(x,yhat))])
     l1_loss = l1(pred, tar)
 
     return pred_loss + (config.LAMBDA * l1_loss)
@@ -80,14 +80,17 @@ def _train_epoch(train_loader, generator, discriminator, opt_gen, opt_disc, bce,
         disc_loss.backward()
         opt_disc.step()
 
-        # perform all steps again with new discriminator for updating generator
+        # evaluate with new discriminator for updating generator
         disc_pred = discriminator(inp, pred)
+
+        # calculate generator loss
         gen_loss = _gen_loss(disc_pred, pred, tar, bce, l1)
         
+        # take backward step on generator
         gen_loss.backward()
         opt_gen.step()
 
-def evaluate_epoch(data_loader, generator, epoch):
+def _evaluate_epoch(data_loader, generator, epoch):
     """
     Generates one image every time run to give understanding of training progression
 
@@ -160,7 +163,7 @@ def train(train_loader, val_loader):
         
         # generate sample image every 5
         if epoch%5 == 0:
-            evaluate_epoch(val_loader, generator, epoch)
+            _evaluate_epoch(val_loader, generator, epoch)
              
         # save checkpoint
         checkpoint.save_checkpoint(
