@@ -6,6 +6,15 @@ todo.txt
 *.png
 *.zip
 
+# data
+brain_data
+cityscapes
+dog_data
+facades
+preprocessing_code
+test_images
+facades.zip
+
 # messing around 
 *.ipynb
 adversarial_noise.py
@@ -18,3 +27,6 @@ logs/
 # not to mess up each others sbats
 *.sbat
 
+# misc
+*/.DS_Store
+__pycache__

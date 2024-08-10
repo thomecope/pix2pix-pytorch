@@ -4,8 +4,7 @@ import torch.nn.functional as F
 from torchvision.models import inception_v3
 import scipy
 
-# Until I can figure out how to do this not in a class, will use code taken from
-# https://github.com/hukkelas/pytorch-frechet-inception-distance/blob/master/fid.py
+# from https://github.com/hukkelas/pytorch-frechet-inception-distance/blob/master/fid.py
 
 
 class PartialInceptionNetwork(nn.Module):
